@@ -1,0 +1,130 @@
+---
+// Código de servidor (Frontmatter) - Vacío por ahora
+---
+
+<div class="max-w-md mx-auto my-10 p-6 bg-white rounded-lg shadow-md font-sans" style="border: 1px solid #e2e8f0;">
+  <h2 class="text-2xl font-bold mb-6 text-gray-800">Registrar Nuevo Producto</h2>
+  
+  <form id="form-producto" class="space-y-4">
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Nombre del Producto:</label>
+      <input type="text" id="nombre" required class="w-full mt-1 p-2 border rounded-md" style="display:block; width:100%; margin-top:4px; padding:8px; border:1px solid #ccc; border-radius:6px;" placeholder="Ej. Teclado Mecánico" />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Categoría:</label>
+      <input type="text" id="categoria" required class="w-full mt-1 p-2 border rounded-md" style="display:block; width:100%; margin-top:4px; padding:8px; border:1px solid #ccc; border-radius:6px;" placeholder="Ej. Tecnología" />
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px;">
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Precio (S/.):</label>
+        <input type="number" id="precio" step="0.01" required class="w-full mt-1 p-2 border rounded-md" style="display:block; width:100%; margin-top:4px; padding:8px; border:1px solid #ccc; border-radius:6px;" placeholder="0.00" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Stock Inicial:</label>
+        <input type="number" id="stockActual" required class="w-full mt-1 p-2 border rounded-md" style="display:block; width:100%; margin-top:4px; padding:8px; border:1px solid #ccc; border-radius:6px;" placeholder="0" />
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px;">
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Stock Mínimo:</label>
+        <input type="number" id="stockMinimo" class="w-full mt-1 p-2 border rounded-md" style="display:block; width:100%; margin-top:4px; padding:8px; border:1px solid #ccc; border-radius:6px;" placeholder="5" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Unidad de Medida:</label>
+        <input type="text" id="unidadMedida" class="w-full mt-1 p-2 border rounded-md" style="display:block; width:100%; margin-top:4px; padding:8px; border:1px solid #ccc; border-radius:6px;" placeholder="UNIDAD" />
+      </div>
+    </div>
+
+    <div style="margin-top: 12px;">
+      <label class="block text-sm font-medium text-gray-700">ID de Ubicación:</label>
+      <input type="number" id="ubicacionId" required class="w-full mt-1 p-2 border rounded-md" style="display:block; width:100%; margin-top:4px; padding:8px; border:1px solid #ccc; border-radius:6px;" placeholder="Ej. 1" />
+    </div>
+
+    <button type="submit" style="margin-top:20px; width:100%; background-color:#2563eb; color:white; font-weight:bold; padding:10px; border:none; border-radius:6px; cursor:pointer;">
+      Guardar Producto en Base de Datos
+    </button>
+  </form>
+
+  <div id="mensaje" style="margin-top: 16px; text-align: center; font-weight: bold; display: none;"></div>
+</div>
+
+<script>
+  // Obtener elementos del formulario con type assertions correctos
+  const form = document.getElementById('form-producto') as HTMLFormElement | null;
+  const mensajeDiv = document.getElementById('mensaje') as HTMLDivElement | null;
+
+  // Obtener inputs con type assertion específica para cada uno
+  const nombreInput = document.getElementById('nombre') as HTMLInputElement | null;
+  const categoriaInput = document.getElementById('categoria') as HTMLInputElement | null;
+  const precioInput = document.getElementById('precio') as HTMLInputElement | null;
+  const stockActualInput = document.getElementById('stockActual') as HTMLInputElement | null;
+  const stockMinimoInput = document.getElementById('stockMinimo') as HTMLInputElement | null;
+  const unidadMedidaInput = document.getElementById('unidadMedida') as HTMLInputElement | null;
+  const ubicacionIdInput = document.getElementById('ubicacionId') as HTMLInputElement | null;
+
+  if (form) {
+    form.addEventListener('submit', async (e: Event) => {
+      e.preventDefault();
+
+      // Validar que todos los inputs existan
+      if (!nombreInput || !categoriaInput || !precioInput || !stockActualInput || !ubicacionIdInput) {
+        mostrarMensaje('Error: Faltan campos en el formulario', 'red');
+        return;
+      }
+
+      // 1. Capturar los valores de los inputs de forma limpia
+      const nombre = nombreInput.value;
+      const categoria = categoriaInput.value;
+      const precio = parseFloat(precioInput.value);
+      const stockActual = parseInt(stockActualInput.value);
+      const stockMinimo = stockMinimoInput ? parseInt(stockMinimoInput.value) || 0 : 0;
+      const unidadMedida = unidadMedidaInput ? unidadMedidaInput.value || "UNIDAD" : "UNIDAD";
+      const ubicacionId = parseInt(ubicacionIdInput.value);
+
+      // 2. Armar el objeto JSON plano para el backend
+      const productoData = {
+        nombre: nombre,
+        categoria: categoria,
+        precio: precio,
+        stockActual: stockActual,
+        stockMinimo: stockMinimo,
+        unidadMedida: unidadMedida,
+        ubicacionId: ubicacionId,
+        activo: true
+      };
+
+      try {
+        // 3. Petición fetch directa a tu backend en IntelliJ
+        const response = await fetch('http://localhost:8080/api/productos', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(productoData)
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          mostrarMensaje(`¡Éxito! Producto creado con ID: ${data.id}`, 'green');
+          form.reset();
+        } else {
+          mostrarMensaje('Error al guardar. Verifica que el ID de ubicación exista.', 'red');
+        }
+      } catch (error) {
+        console.error('Error de conexión:', error);
+        mostrarMensaje('No se pudo establecer conexión con el backend en el puerto 8080.', 'red');
+      }
+    });
+  }
+
+  function mostrarMensaje(texto: string, color: string): void {
+    if (mensajeDiv) {
+      mensajeDiv.textContent = texto;
+      mensajeDiv.style.display = 'block';
+      mensajeDiv.style.color = color;
+    }
+  }
+</script>

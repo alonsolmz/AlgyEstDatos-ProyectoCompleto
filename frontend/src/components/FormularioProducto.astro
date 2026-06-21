@@ -1,0 +1,246 @@
+---
+// FormularioProducto.astro
+---
+
+<div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+  
+  <div class="flex border-b border-slate-200 bg-slate-50">
+    <button id="tab-crear" class="flex-1 py-3 text-sm font-semibold text-blue-600 border-b-2 border-blue-600 focus:outline-none transition-colors">
+      1. Crear Nuevo Producto
+    </button>
+    <button id="tab-stock" class="flex-1 py-3 text-sm font-semibold text-slate-500 border-b-2 border-transparent hover:text-slate-700 focus:outline-none transition-colors">
+      2. Ingresar Cantidades
+    </button>
+  </div>
+
+  <form id="form-crear" class="p-6 space-y-5 block">
+    <div class="mb-2">
+      <h3 class="text-lg font-semibold text-slate-800">Definir Artículo</h3>
+      <p class="text-xs text-slate-500">Registre un producto en el catálogo (inicia con stock en 0).</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Nombre del Producto</label>
+        <input type="text" id="nombre" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder='Ej. Gaseosa Inca Kola 600ml'/>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Categoría</label>
+        <input type="text" id="categoria" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="Ej. Gaseosas" />
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Precio (S/.)</label>
+        <input type="number" id="precio" step="0.01" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="0.00" />
+      </div>
+      <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Stock Alerta</label>
+        <input type="number" id="stockMinimo" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="5" value="5" />
+      </div>
+      <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Unidad</label>
+        <select id="unidadMedida" class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+          <option value="UNIDAD">Unidades (UND)</option>
+          <option value="CAJA">Cajas (CJ)</option>
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Ubicación en Almacén</label>
+      <select id="ubicacionId" required class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+        <option value="">Cargando ubicaciones...</option>
+      </select>
+    </div>
+
+    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg text-sm transition-colors mt-2">
+      Crear Producto en Catálogo
+    </button>
+  </form>
+
+  <form id="form-stock" class="p-6 space-y-5 hidden">
+    <div class="mb-2">
+      <h3 class="text-lg font-semibold text-slate-800">Ingreso a Almacén</h3>
+      <p class="text-xs text-slate-500">Seleccione un producto existente para sumarle existencias.</p>
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Seleccionar Producto</label>
+      <select id="productoSelect" required class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+        <option value="">Cargando productos...</option>
+      </select>
+    </div>
+
+    <div id="info-producto" class="bg-slate-50 border border-slate-200 rounded-lg p-4 text-sm hidden">
+      <div class="grid grid-cols-2 gap-2">
+        <p class="text-slate-500">Categoría: <span id="lbl-categoria" class="font-medium text-slate-800"></span></p>
+        <p class="text-slate-500">Precio: <span class="font-medium text-slate-800">S/. <span id="lbl-precio"></span></span></p>
+        <p class="text-slate-500">Ubicación: <span id="lbl-ubicacion" class="font-medium text-slate-800"></span></p>
+        <p class="text-slate-500">Stock Actual: <span id="lbl-stock" class="font-bold text-blue-600"></span></p>
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Cantidad a Añadir</label>
+      <input type="number" id="cantidadEntrante" required min="1" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm font-bold text-emerald-700" placeholder="Ej. 50" />
+    </div>
+
+    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 px-4 rounded-lg text-sm transition-colors mt-2">
+      Confirmar Ingreso de Stock
+    </button>
+  </form>
+
+  <div id="status-toast" class="mx-6 mb-6 p-3 rounded-lg text-sm text-center hidden font-medium"></div>
+</div>
+
+<script is:inline>
+  function inicializarFormulario() {
+    // Variables globales
+    let listaProductos = [];
+    
+    // Elementos del DOM
+    const tabCrear = document.getElementById('tab-crear');
+    const tabStock = document.getElementById('tab-stock');
+    const formCrear = document.getElementById('form-crear');
+    const formStock = document.getElementById('form-stock');
+    const toast = document.getElementById('status-toast');
+    
+    // Elementos Formulario 1
+    const selectUbicacion = document.getElementById('ubicacionId');
+    
+    // Elementos Formulario 2
+    const selectProducto = document.getElementById('productoSelect');
+    const infoCard = document.getElementById('info-producto');
+
+    // --- PETICIONES GET ---
+    async function cargarUbicaciones() {
+      try {
+        const res = await fetch('http://localhost:8080/api/ubicaciones');
+        if (res.ok) {
+          const ubicaciones = await res.json();
+          if (selectUbicacion) {
+            selectUbicacion.innerHTML = '<option value="">-- Seleccione Ubicación --</option>';
+            ubicaciones.forEach((u) => selectUbicacion.innerHTML += `<option value="${u.id}">${u.nombre}</option>`);
+          }
+        }
+      } catch (e) { console.error('Error ubicaciones'); }
+    }
+
+    async function cargarProductos() {
+      try {
+        const res = await fetch('http://localhost:8080/api/productos');
+        if (res.ok) {
+          listaProductos = await res.json();
+          if (selectProducto) {
+            selectProducto.innerHTML = '<option value="">-- Elija un Producto Existente --</option>';
+            listaProductos.forEach((p) => selectProducto.innerHTML += `<option value="${p.id}">${p.nombre}</option>`);
+          }
+        }
+      } catch (e) { console.error('Error productos'); }
+    }
+
+    function showToast(msj, clases) {
+      if (toast) {
+        toast.textContent = msj;
+        toast.className = `mx-6 mb-6 p-3 rounded-lg text-sm text-center font-medium ${clases}`;
+        toast.classList.remove('hidden');
+        setTimeout(() => toast.classList.add('hidden'), 5000);
+      }
+    }
+
+    // --- LÓGICA DE PESTAÑAS ---
+    tabCrear?.addEventListener('click', () => {
+      formCrear.classList.remove('hidden');
+      formStock.classList.add('hidden');
+      tabCrear.className = 'flex-1 py-3 text-sm font-semibold text-blue-600 border-b-2 border-blue-600 focus:outline-none transition-colors';
+      tabStock.className = 'flex-1 py-3 text-sm font-semibold text-slate-500 border-b-2 border-transparent hover:text-slate-700 focus:outline-none transition-colors';
+    });
+
+    tabStock?.addEventListener('click', () => {
+      formStock.classList.remove('hidden');
+      formCrear.classList.add('hidden');
+      tabStock.className = 'flex-1 py-3 text-sm font-semibold text-emerald-600 border-b-2 border-emerald-600 focus:outline-none transition-colors';
+      tabCrear.className = 'flex-1 py-3 text-sm font-semibold text-slate-500 border-b-2 border-transparent hover:text-slate-700 focus:outline-none transition-colors';
+      cargarProductos();
+    });
+
+    // Mostrar info del producto al seleccionarlo
+    selectProducto?.addEventListener('change', (e) => {
+      const idSelec = parseInt(e.target.value);
+      const prod = listaProductos.find((p) => p.id === idSelec);
+      
+      if (prod && infoCard) {
+        infoCard.classList.remove('hidden');
+        document.getElementById('lbl-categoria').textContent = prod.categoria;
+        document.getElementById('lbl-precio').textContent = prod.precio.toFixed(2);
+        document.getElementById('lbl-stock').textContent = prod.stockActual + ' ' + prod.unidadMedida;
+        document.getElementById('lbl-ubicacion').textContent = prod.ubicacionId;
+      } else if (infoCard) {
+        infoCard.classList.add('hidden');
+      }
+    });
+
+    // --- ENVÍOS DE FORMULARIOS ---
+
+    // 1. Crear Producto Nuevo
+    formCrear?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = {
+        nombre: document.getElementById('nombre').value,
+        categoria: document.getElementById('categoria').value,
+        precio: parseFloat(document.getElementById('precio').value),
+        stockActual: 0,
+        stockMinimo: parseInt(document.getElementById('stockMinimo').value) || 0,
+        unidadMedida: document.getElementById('unidadMedida').value,
+        ubicacionId: parseInt(selectUbicacion.value),
+        activo: true
+      };
+
+      try {
+        const res = await fetch('http://localhost:8080/api/productos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        if (res.ok) {
+          showToast('Producto registrado. Ahora puede ingresarle stock.', 'bg-blue-50 text-blue-700 border border-blue-200');
+          formCrear.reset();
+        }
+      } catch (e) { showToast('Error de red al crear.', 'bg-red-50 text-red-700'); }
+    });
+
+    // 2. Añadir Stock
+    formStock?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const idProducto = selectProducto.value;
+      const cantidadAñadir = parseInt(document.getElementById('cantidadEntrante').value);
+      
+      try {
+        const res = await fetch(`http://localhost:8080/api/productos/${idProducto}/stock?cantidad=${cantidadAñadir}`, {
+          method: 'PUT',
+        });
+        
+        if (res.ok) {
+          showToast(`Se añadieron ${cantidadAñadir} unidades al inventario.`, 'bg-emerald-50 text-emerald-700 border border-emerald-200');
+          formStock.reset();
+          infoCard?.classList.add('hidden');
+          cargarProductos();
+        } else {
+          showToast('Error al actualizar stock.', 'bg-red-50 text-red-700');
+        }
+      } catch (e) { showToast('Error de conexión al sumar stock.', 'bg-red-50 text-red-700'); }
+    });
+
+    // Inicializar
+    cargarUbicaciones();
+  }
+
+  // Ejecutar al cargar
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', inicializarFormulario);
+  } else {
+    inicializarFormulario();
+  }
+</script>
